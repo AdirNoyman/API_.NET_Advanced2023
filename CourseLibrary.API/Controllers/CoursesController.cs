@@ -2,6 +2,7 @@
 using AutoMapper;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.Services;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API.Controllers;
@@ -67,7 +68,7 @@ public class CoursesController : ControllerBase
         await _courseLibraryRepository.SaveAsync();
 
         var courseToReturn = _mapper.Map<CourseDto>(courseEntity);
-        // Retirn response that displays the route to the created resource and the JSON of the resource created
+        // Return response that displays the route to the created resource and the JSON of the resource created
         return CreatedAtRoute("GetCourseForAuthor", new { authorId, courseId = courseToReturn.Id }, courseToReturn);
 
     }
@@ -78,23 +79,84 @@ public class CoursesController : ControllerBase
       Guid courseId,
       CourseForUpdateDto course)
     {
+        // Check if the requested author exist in the DB
         if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
         {
             return NotFound();
         }
 
+        // Check if the requested course exist in the DB
         var courseForAuthorFromRepo = await _courseLibraryRepository.GetCourseAsync(authorId, courseId);
 
+        // If course doesn't exist => create it!
         if (courseForAuthorFromRepo == null)
         {
-            return NotFound();
+            // Copy the course dto to a new entry in course table
+            var courseToAdd = _mapper.Map<Entities.Course>(course);
+            // Assign the new course to the Id that was passed by the client
+            courseToAdd.Id = courseId;
+            _courseLibraryRepository.AddCourse(authorId, courseToAdd);
+            await _courseLibraryRepository.SaveAsync();
+
+            var courseToReturn = _mapper.Map<CourseDto>(courseToAdd);
+            // Return response that displays the route to the created resource and the JSON of the resource created
+            return CreatedAtRoute("GetCourseForAuthor", new { authorId, courseId = courseToReturn.Id }, courseToReturn);
+
         }
 
+        // Map course dto => course DB entity
         _mapper.Map(course, courseForAuthorFromRepo);
 
         _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
 
         await _courseLibraryRepository.SaveAsync();
+        return NoContent();
+    }
+
+    [HttpPatch("{courseId}")]
+    public async Task<IActionResult> PartiallyUpdateCourseForAuthor(Guid authorId, Guid courseId, JsonPatchDocument<CourseForUpdateDto> patchDocument)
+    {
+        // Check if the requested author exist in the DB
+        if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
+        {
+            return NotFound();
+        }
+
+        // Check if the requested course exist in the DB
+        var courseForAuthorFromRepo = await _courseLibraryRepository.GetCourseAsync(authorId, courseId);
+
+        // If course doesn't exist => create it!
+        if (courseForAuthorFromRepo == null)
+        {
+            var courseDto = new CourseForUpdateDto();
+            // Apply json patch data to the CourseForUpdateDto
+            patchDocument.ApplyTo(courseDto);
+            var courseToAdd = _mapper.Map<Entities.Course>(courseDto);
+            // Assign the new course to the Id that was passed by the client
+            courseToAdd.Id = courseId;
+
+            _courseLibraryRepository.AddCourse(authorId, courseToAdd);
+            await _courseLibraryRepository.SaveAsync();
+
+            var courseToReturn = _mapper.Map<CourseDto>(courseToAdd);
+            // Return response that displays the route to the created resource and the JSON of the resource created
+            return CreatedAtRoute("GetCourseForAuthor", new { authorId, courseId = courseToReturn.Id }, courseToReturn);
+
+
+
+        }
+
+        // Map course DB entity => courseToPatch dto. Loading the course DB entity requested entry, to CourseForUpdateDto POCO
+        var courseToPatch = _mapper.Map<CourseForUpdateDto>(courseForAuthorFromRepo);
+        // Applying the data requested changes (updates) we got from the JSON to the CourseForUpdateDto POCO
+        patchDocument.ApplyTo(courseToPatch);
+        // Map courseToPatch dto => courseForAuthorFromRepo DB entity
+        _mapper.Map(courseToPatch, courseForAuthorFromRepo);
+        // Update the repository in memory with the planned changes to the DB course entity
+        _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
+        // Commit the changes in the repository to the database
+        await _courseLibraryRepository.SaveAsync();
+        // Return successful result
         return NoContent();
     }
 

@@ -54,3 +54,7 @@
 /Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/obj/Debug/net6.0/CourseLibrary.API.pdb
 /Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/obj/Debug/net6.0/CourseLibrary.API.genruntimeconfig.cache
 /Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/obj/Debug/net6.0/ref/CourseLibrary.API.dll
+/Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/bin/Debug/net6.0/Microsoft.AspNetCore.JsonPatch.dll
+/Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/bin/Debug/net6.0/Newtonsoft.Json.dll
+/Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/bin/Debug/net6.0/Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+/Users/adirnoyman/Library/Mobile Documents/com~apple~CloudDocs/Documents/Microsoft.NET CORE/courses/API_DeepDive_kevinDocks_01.23/developement/Starter files/CourseLibrary.API/bin/Debug/net6.0/Newtonsoft.Json.Bson.dll

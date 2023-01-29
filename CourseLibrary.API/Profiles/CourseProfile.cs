@@ -8,6 +8,7 @@ public class CoursesProfile : Profile
         CreateMap<Entities.Course, Models.CourseDto>();
         CreateMap<Models.CourseForCreationDto, Entities.Course>();
         // Map CourseForUpdateDto (to)=> Course(DB Entity)
-        CreateMap<Models.CourseForUpdateDto, Entities.Course>();
+        // ReverseMap() - enable us to map also in other way around
+        CreateMap<Models.CourseForUpdateDto, Entities.Course>().ReverseMap();
     }
 }
