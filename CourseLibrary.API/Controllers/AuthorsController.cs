@@ -71,5 +71,14 @@ public class AuthorsController : ControllerBase
             authorToReturn);
     }
 
+    [HttpOptions]
+    public IActionResult GetAuthorsOptions()
+    {
+        // Return what options we allow in our API. We add this data to the Response Header
+        Response.Headers.Add("Allow", "GET,HEAD,POST,OPTIONS");
+        return Ok();
+    }
+
+
 
 }
