@@ -1,12 +1,14 @@
 ﻿using CourseLibrary.API.DbContexts;
-using CourseLibrary.API.Entities; 
+using CourseLibrary.API.Entities;
 using Microsoft.EntityFrameworkCore;
+using ResourceParameters;
 
 namespace CourseLibrary.API.Services;
 
-public class CourseLibraryRepository : ICourseLibraryRepository 
+public class CourseLibraryRepository : ICourseLibraryRepository
 {
     private readonly CourseLibraryContext _context;
+
 
     public CourseLibraryRepository(CourseLibraryContext context)
     {
@@ -120,10 +122,48 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 #pragma warning restore CS8603 // Possible null reference return.
     }
 
-   
+
     public async Task<IEnumerable<Author>> GetAuthorsAsync()
     {
         return await _context.Authors.ToListAsync();
+    }
+
+    // Get authors with filtering
+    public async Task<IEnumerable<Author>> GetAuthorsAsync(AuthorsResourceParameters authorsResourceParameters)
+    {
+
+        if (authorsResourceParameters == null)
+        {
+            throw new ArgumentNullException(nameof(authorsResourceParameters));
+        }
+
+        var mainCategory = authorsResourceParameters.MainCategory;
+        var searchQuery = authorsResourceParameters.SearchQuery;
+
+        // if (string.IsNullOrWhiteSpace(mainCategory) && string.IsNullOrWhiteSpace(searchQuery))
+        // {
+        //     return await GetAuthorsAsync();
+        // }
+
+        // Collection to start from (the searching/filtering)
+        // Using IQueryable is best practice because that way we get deffered execution
+        var collection = _context.Authors as IQueryable<Author>;
+
+        // Filtering Authors by mainCategory
+        if (!string.IsNullOrWhiteSpace(mainCategory))
+        {
+            mainCategory = mainCategory.Trim();
+            collection = collection.Where(a => a.MainCategory == mainCategory);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            searchQuery = searchQuery.Trim();
+            collection = collection.Where(a => a.MainCategory.Contains(searchQuery) || a.FirstName.Contains(searchQuery) || a.LastName.Contains(searchQuery));
+        }
+
+        // Return the filtered collection. Skip tells the system how many items to skip
+        return await collection.Skip(authorsResourceParameters.PageSize * (authorsResourceParameters.PageNumber - 1)).Take(authorsResourceParameters.PageSize).ToListAsync();
     }
 
     public async Task<IEnumerable<Author>> GetAuthorsAsync(IEnumerable<Guid> authorIds)

@@ -5,6 +5,7 @@ using CourseLibrary.API.Helpers;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using ResourceParameters;
 
 namespace CourseLibrary.API.Controllers;
 
@@ -28,12 +29,12 @@ public class AuthorsController : ControllerBase
     // HttpHead = support for Head requests (response include Headers only without the payload)
     [HttpGet]
     [HttpHead]
-    public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
+    public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors([FromQuery] AuthorsResourceParameters authorsResourceParameters)
     {
 
         // get authors from repo
         var authorsFromRepo = await _courseLibraryRepository
-            .GetAuthorsAsync();
+            .GetAuthorsAsync(authorsResourceParameters);
 
         // return them
         return Ok(_mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
